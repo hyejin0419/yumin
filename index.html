@@ -1,0 +1,164 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#183B32" />
+  <title>WKU Eats | 원광 이츠</title>
+  <meta name="description" content="원광대학교 주변 음식점과 카페를 한글·영어로 탐색하는 모바일 웹앱" />
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="icon" href="icon.svg" type="image/svg+xml" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    integrity="sha256-p4NxAoJBhIINfQeDcqVUay2b+qm7aTifYOmfHeUksQk=" crossorigin="" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="app-shell">
+    <header class="topbar">
+      <a class="brand" href="#home" aria-label="WKU Eats home">
+        <span class="brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 64 64" role="img"><path class="pin" d="M32 4C20.4 4 11 13.1 11 24.3 11 40.5 32 60 32 60s21-19.5 21-35.7C53 13.1 43.6 4 32 4Z"/><path class="bowl" d="M20 26h24c-.9 8.1-5.2 12.5-12 12.5S20.9 34.1 20 26Z"/><path class="steam" d="M26 17c-2 2-2 4 0 6M32 15c-2 2.3-2 4.7 0 7M38 17c-2 2-2 4 0 6"/></svg>
+        </span>
+        <span><strong>WKU Eats</strong><small>원광 이츠</small></span>
+      </a>
+      <nav class="desktop-nav" aria-label="주요 메뉴">
+        <a href="#map-section">Map 지도</a>
+        <a href="#places-section">Places 장소</a>
+        <a href="#routes-section">Routes 코스</a>
+        <a href="#culture-section">Culture 문화</a>
+      </nav>
+    </header>
+
+    <main id="home">
+      <section class="hero">
+        <div class="hero-copy">
+          <p class="eyebrow"><span>Campus food map</span><b>외국인 유학생 · 신입생용</b></p>
+          <h1>WKU Eats</h1>
+          <p class="hero-kicker">원광대 장소·카페 지도<br><small>Campus food & cafe map</small></p>
+          <p class="hero-desc">현재 위치를 연결해 가까운 식당을 보고, 메뉴·주문 표현·식문화 팁을 한글과 영어로 확인하세요.</p>
+          <div class="hero-actions">
+            <button class="btn primary use-location" type="button">현재 위치 사용 / Use my location</button>
+            <a class="btn ghost" href="#places-section">장소 보기 / See places</a>
+          </div>
+          <div class="stats" aria-label="앱 통계">
+            <div><strong id="stat-count">0</strong><span>Places<br>장소</span></div>
+            <div><strong id="stat-nearest">—</strong><span>Nearest<br>가까운 곳</span></div>
+            <div><strong>KO/EN</strong><span>Bilingual<br>한영 병기</span></div>
+          </div>
+        </div>
+        <aside class="hero-card" aria-label="앱 미리보기">
+          <div class="phone-preview">
+            <div class="phone-status"><span></span><b>WKU Eats</b><i></i></div>
+            <div class="mini-map-real">
+              <div class="gridline"></div>
+              <span class="pin-dot one"></span><span class="pin-dot two"></span><span class="pin-dot three"></span>
+              <span class="me-dot"></span>
+            </div>
+            <div class="preview-card"><b>Use my location</b><small>현재 위치 기준 가까운 장소</small></div>
+            <div class="preview-card soft"><b>Order phrase</b><small>짬뽕 하나 주세요.</small></div>
+          </div>
+        </aside>
+      </section>
+
+      <section id="map-section" class="section map-layout">
+        <div class="section-head">
+          <p>Live map · Current location · 실제 지도</p>
+          <h2>캠퍼스 지도 <small>Campus map</small></h2>
+          <span id="mapStatus" class="status">지도 준비 중 / Loading map...</span>
+          <a class="pill-btn map-search-link" href="#controlPanel">검색·필터 / Search</a>
+        </div>
+        <div class="map-card">
+          <div id="map" class="leaflet-map" role="application" aria-label="원광대 주변 음식점·카페 지도"></div>
+          <div id="mapFallback" class="map-fallback" hidden>
+            <strong>지도를 불러오지 못했습니다 / Map could not load</strong>
+            <p>인터넷 연결이나 외부 지도 스크립트가 차단되었을 수 있습니다. 아래 지도 앱 버튼은 계속 사용할 수 있습니다.</p>
+          </div>
+          <aside class="map-side-panel">
+            <div class="map-logo-row"><span class="tiny-logo">W</span><b id="selectedMapName">원광대학교 / Wonkwang University</b></div>
+            <p id="selectedMapAddress">전북특별자치도 익산시 익산대로 460 원광대학교</p>
+            <p id="distanceHint" class="distance-hint">현재 위치를 허용하면 거리와 가까운순 정렬이 활성화됩니다.<br><small>Allow location to enable distance and nearest sorting.</small></p>
+            <div class="map-actions">
+              <button id="centerCampusBtn" class="mini-btn" type="button">캠퍼스 / Campus</button>
+              <button id="centerMeBtn" class="mini-btn" type="button">내 위치 / Me</button>
+              <button class="mini-btn use-location" type="button">GPS 허용 / GPS</button>
+            </div>
+            <div class="map-actions external">
+              <a id="openGoogle" class="mini-btn" target="_blank" rel="noopener">Google</a>
+              <a id="openNaver" class="mini-btn" target="_blank" rel="noopener">Naver</a>
+              <a id="openKakao" class="mini-btn" target="_blank" rel="noopener">Kakao</a>
+            </div>
+            <small class="safe-note">현재 위치는 사용자의 기기 안에서만 계산되며 서버로 저장하지 않습니다.<br>Your location is used only in this browser and is not stored on a server.</small>
+          </aside>
+        </div>
+      </section>
+
+      <section class="toolbar collapsed" id="controlPanel" aria-label="검색과 필터">
+        <button id="menuToggle" class="menu-toggle" type="button" aria-expanded="false" aria-controls="controlsBody">
+          <span class="menu-toggle-left">
+            <b>검색·필터</b>
+            <small>Search & filters</small>
+          </span>
+          <span id="menuToggleStatus" class="menu-toggle-status">열기 Open</span>
+        </button>
+        <div id="controlsBody" class="toolbar-body">
+          <label class="search-box">
+            <span>Search 검색</span>
+            <input id="searchInput" type="search" placeholder="음식점·카페명, 메뉴 검색 / Search food, cafe, menu" autocomplete="off" />
+          </label>
+          <div class="control-grid">
+            <label><span>Type 구분</span><select id="categorySelect"></select></label>
+            <label><span>Price 가격</span><select id="priceSelect"><option value="all">All 전체</option><option value="1">₩ 가성비</option><option value="2">₩₩ 보통</option><option value="3">₩₩₩ 여유</option></select></label>
+            <label><span>Spice 맵기</span><select id="spiceSelect"><option value="all">All 전체</option><option value="0-1">Mild 순한맛</option><option value="2-3">Medium 보통</option><option value="4-5">Spicy 매운맛</option></select></label>
+            <label><span>Sort 정렬</span><select id="sortSelect"><option value="recommend">Recommended 추천순</option><option value="distance">Distance 가까운순</option><option value="price">Low price 낮은 가격순</option><option value="rating">Rating 평점순</option><option value="name">Name 이름순</option></select></label>
+          </div>
+          <div id="chipBar" class="chip-bar" aria-label="빠른 카테고리"></div>
+        </div>
+      </section>
+
+      <section id="places-section" class="section">
+        <div class="section-head compact">
+          <p>Campus food & cafés · 캠퍼스 주변 음식점·카페</p>
+          <h2>장소 목록 <small>Food & cafe list</small></h2>
+          <button id="favOnlyBtn" class="pill-btn" type="button">☆ Favorites only / 저장한 곳만</button>
+        </div>
+        <div id="restaurantGrid" class="restaurant-grid"></div>
+      </section>
+
+      <section id="routes-section" class="section">
+        <div class="section-head compact">
+          <p>Recommended routes · 추천 코스</p>
+          <h2>상황별 코스 <small>Routes by situation</small></h2>
+        </div>
+        <div id="routeGrid" class="route-grid"></div>
+      </section>
+
+      <section id="culture-section" class="section">
+        <div class="section-head compact">
+          <p>Korean food culture · 한국 식문화</p>
+          <h2>식문화 가이드 <small>Food culture guide</small></h2>
+        </div>
+        <div id="cultureGrid" class="culture-grid"></div>
+      </section>
+    </main>
+  </div>
+
+  <nav class="bottom-nav" aria-label="모바일 메뉴">
+    <a href="#map-section">🗺️<span>Map<br>지도</span></a>
+    <a href="#controlPanel">🔎<span>Search<br>검색</span></a>
+    <button class="use-location" type="button">📍<span>Me<br>위치</span></button>
+    <a href="#culture-section">💬<span>Culture<br>문화</span></a>
+  </nav>
+
+  <dialog id="detailDialog" class="detail-dialog">
+    <div class="detail-inner">
+      <button id="closeDialog" class="close-btn" type="button" aria-label="닫기">×</button>
+      <div id="detailContent"></div>
+    </div>
+  </dialog>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+    integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+  <script src="data.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

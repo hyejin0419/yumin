@@ -1,0 +1,16 @@
+{
+  "name": "WKU Eats - Food & Cafe Map",
+  "short_name": "WKU Eats",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#F7F4EC",
+  "theme_color": "#183B32",
+  "icons": [
+    {
+      "src": "icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ],
+  "description": "원광대 주변 음식점과 카페를 구분해 보여주는 한영 병기 웹앱"
+}
